@@ -49,11 +49,11 @@
 	</developers>
 
 	<properties>
-		<revision>3.0.8</revision>
-		<changelist/>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<drools.version>7.59.0.Final</drools.version>
+		<revision>4.0.0</revision>
+		<changelist>.bestow-SNAPSHOT</changelist>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<drools.version>8.35.0.Final</drools.version>
 		<jbehave.version>4.8.3</jbehave.version>
 		<spring.version>5.3.10</spring.version>
 		<jackson.version>2.10.2</jackson.version>
@@ -99,7 +99,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.6</version>
+				<version>3.12.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -230,7 +230,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -243,7 +243,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
+				<version>3.5.0</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -285,6 +285,12 @@
 				<configuration>
 					<parallel>classes</parallel>
 					<forkCount>5</forkCount>
+					<argLine>
+					--add-opens=java.base/java.net=ALL-UNNAMED
+					--add-opens=java.base/java.lang=ALL-UNNAMED
+					--add-opens=java.base/java.lang.ref=ALL-UNNAMED
+					--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED
+					</argLine>
 				</configuration>
 			</plugin>
 		</plugins>

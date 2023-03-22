@@ -1,7 +1,7 @@
 package org.droolsassert;
 
 import static java.util.concurrent.TimeUnit.HOURS;
-import static org.drools.core.impl.KnowledgeBaseFactory.newKnowledgeSessionConfiguration;
+import static org.drools.kiesession.rulebase.KnowledgeBaseFactory.newKnowledgeBase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.droolsassert.SpringIntegration2Test.AppConfig;
@@ -37,7 +37,7 @@ public class SpringIntegration2Test {
 	public DroolsAssert drools = new DroolsAssert() {
 		@Override
 		protected KieSession newSession(DroolsSession droolsSessionMeta) {
-			KieSessionConfiguration config = newKnowledgeSessionConfiguration();
+			KieSessionConfiguration config = newKnowledgeBase().getSessionConfiguration();
 			config.setProperty("drools.clockType", "pseudo");
 			config.setProperty("drools.eventProcessingMode", "stream");
 			return kieContainer.newKieSession(config);
