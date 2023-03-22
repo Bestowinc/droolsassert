@@ -1,0 +1,69 @@
+version: 2.1
+
+commands:
+  with_maven_cache:
+    # inspired by https://github.com/CircleCI-Public/maven-orb
+    parameters:
+      steps:
+        type: steps
+    steps:
+      - run:
+          command: |-
+            #!/bin/bash
+            find . -name 'pom.xml' | sort | xargs cat > /tmp/maven_cache_seed
+          name: Generate Cache Checksum
+      - restore_cache:
+          keys:
+          - maven-repo-v1-{{ .Branch }}-{{ checksum "/tmp/maven_cache_seed" }}
+          - maven-repo-v1-{{ .Branch }}-
+          - maven-repo-v1-
+      - run:
+          command: mvn dependency:go-offline
+          name: Verify dependencies
+      - steps: << parameters.steps >>
+      - save_cache:
+          key: maven-repo-v1-{{ .Branch }}-{{ checksum "/tmp/maven_cache_seed" }}
+          paths:
+            - ~/.m2/repository
+
+jobs:
+  verify:
+    resource_class: bestowinc/dev-k8s-small
+    docker:
+      - image: maven:3.8-eclipse-temurin-17
+    steps:
+      - checkout
+      - with_maven_cache:
+          steps:
+            - run: mvn -ntp -B verify
+
+  maven_deploy:
+    resource_class: bestowinc/dev-k8s-small
+    docker:
+      - image: maven:3.8-eclipse-temurin-17
+    parameters:
+    steps:
+      - checkout
+      - with_maven_cache:
+          steps:
+            - when:
+                condition: &publish-release-condition << pipeline.git.tag >>
+                steps:
+                  - run: mvn -B deploy -DskipTests -Drevision="<< pipeline.git.tag >>" -Dchangelist=""
+            - unless:
+                condition: *publish-release-condition
+                steps:
+                  - run: mvn -B deploy -DskipTests -Dchangelist="-bestow-${CIRCLE_BRANCH}-SNAPSHOT"
+
+workflows:
+  check-and-publish:
+    jobs:
+      - verify:
+          filters: &include-bestow-tags
+            tags:
+              only: /.*bestow$/
+      - maven_deploy:
+          requires:
+            - verify
+          filters:
+            <<: *include-bestow-tags
